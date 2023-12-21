@@ -14,6 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { GetCurrentDirectoryMap, SniffDirectory } from './sniffingHandler';
 
 class AppUpdater {
   constructor() {
@@ -25,10 +26,15 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
+// TODO: Need to implement ipcMain.Ons.
+// Needed On events: GetCurrentTree, StartScanning
+ipcMain.on('StartSniffing', async (event, arg) => {
+  console.log(`Got request to start sniffing for directory ${arg[0]}`);
+  await SniffDirectory(arg);
+});
+
+ipcMain.on('CurrentDirectoryMap', (event) => {
+  event.reply('CurrentDirectoryMap', GetCurrentDirectoryMap());
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -75,6 +81,7 @@ const createWindow = async () => {
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      nodeIntegration: true,
       devTools: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
