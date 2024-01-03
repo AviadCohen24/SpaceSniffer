@@ -55,9 +55,9 @@ export default function setIpcRoutes(
   });
 
   // The exception below will disappear when the `handleRequestCurrentDirectoryMap` will be implemented
-  registerEvent('get_current_map', ipcMain, async () => {
+  registerEvent('get_current_map', ipcMain, async (param) => {
     return forwardErrorsToClient(async () =>
-      ClientEventHandlers.handleRequestCurrentDirectoryMap(),
+      ClientEventHandlers.handleRequestCurrentDirectoryMap(param),
     );
   });
 

@@ -2,7 +2,7 @@ import { BrowserWindow } from 'electron';
 import emitToClient from '../IPC/EmitToClient';
 import { ErrorMessage } from '../../shared/Scanner/ErrorMessage';
 import { CurrentProgressMessage } from '../../shared/Scanner/Progress';
-import { FolderHierarchy } from '../../Scanner/FolderHierarchy';
+import { Drive } from '../../shared/Scanner/Drives';
 
 export function handleErrorMessage(
   browserWindow: BrowserWindow,
@@ -30,12 +30,49 @@ export async function handleRequestStopScanning() {
   console.log(`Stop scanning request arrived successfully`);
 }
 
-export async function handleRequestCurrentDirectoryMap() {
+export async function handleRequestCurrentDirectoryMap(basePath: string) {
   // TODO: Invoke get current directory function that exist in the rust scanning DLL
-  // TODO: Temporary implement for demo
-  let jsonObject =
+  // Temporary implement for demo
+  const jsonString: string = `{
+    "value": 43,
+    "name": ".tmpiEtJbP",
+    "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
+    "children": [
+        {
+            "value": 27,
+            "name": "subfolder1",
+            "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
+            "children": []
+        },
+        {
+            "value": 16,
+            "name": "subfolder2",
+            "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
+            "children": []
+        }
+    ]
+  }`;
+
+  return JSON.parse(jsonString);
 }
 
 export async function handleAvailableDrivesRequest() {
   // TODO: Implement export available drives
+  // Temporary implement for demo
+  const mapObject: Drive[] = [
+    {
+      name: 'C',
+      volume: 15200,
+    },
+    {
+      name: 'D',
+      volume: 18200,
+    },
+    {
+      name: 'E',
+      volume: 10200,
+    },
+  ];
+
+  return mapObject;
 }

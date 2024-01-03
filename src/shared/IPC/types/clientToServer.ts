@@ -1,11 +1,11 @@
-import { Drives } from '../../Scanner/Drives';
+import { Drive } from '../../Scanner/Drives';
 import { FolderHierarchy } from '../../Scanner/FolderHierarchy';
 
 export interface IPCMethods {
   // eslint-disable-next-line prettier/prettier
   'get_available_drives': {
     request: null;
-    response: Drives;
+    response: Drive[];
   };
   // eslint-disable-next-line prettier/prettier
   'start_scanning': {
@@ -19,7 +19,7 @@ export interface IPCMethods {
   };
   // eslint-disable-next-line prettier/prettier
   'get_current_map': {
-    request: null;
+    request: string;
     response: FolderHierarchy | null;
   };
 }
