@@ -1,29 +1,103 @@
+/* eslint-disable camelcase */
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import { IPCMethods } from '../shared/IPC/types/clientToServer';
+import { IPC_PushNotification } from '../shared/IPC/types/serverToClient';
 
-export type Channels = 'StartSniffing' | 'CurrentDirectoryMap';
+type Channels = keyof IPCMethods;
 
-const electronHandler = {
+export interface ElectronHandler {
+  ipcRenderer: {
+    sendMessage(channel: Channels, ...args: unknown[]): void;
+
+    on: <T extends keyof IPC_PushNotification>(
+      channel: T,
+      func: (
+        _event: IpcRendererEvent,
+        args: IPC_PushNotification[T]['payload'],
+      ) => void,
+    ) => void;
+
+    off: <T extends keyof IPC_PushNotification>(
+      channel: T,
+      func: (
+        _event: IpcRendererEvent,
+        args: IPC_PushNotification[T]['payload'],
+      ) => void,
+    ) => void;
+
+    removeAllListeners: <T extends keyof IPC_PushNotification>(
+      channel: T,
+    ) => void;
+
+    once: <T extends keyof IPC_PushNotification>(
+      channel: T,
+      func: (
+        _event: IpcRendererEvent,
+        args: IPC_PushNotification[T]['payload'],
+      ) => void,
+    ) => void;
+
+    invoke: <T extends Channels>(
+      channel: T,
+      args: IPCMethods[T]['request'],
+    ) => Promise<IPCMethods[T]['response']>;
+
+    listenerCount: <T extends keyof IPC_PushNotification>(channel: T) => number;
+  };
+}
+
+const electronHandler: ElectronHandler = {
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {
-      ipcRenderer.send(channel, ...args);
+      ipcRenderer.send(channel, args);
     },
-    on(channel: Channels, func: (...args: unknown[]) => void) {
-      const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
-        func(...args);
-      ipcRenderer.on(channel, subscription);
 
-      return () => {
-        ipcRenderer.removeListener(channel, subscription);
-      };
+    on: <T extends keyof IPC_PushNotification>(
+      channel: T,
+      func: (
+        _event: IpcRendererEvent,
+        args: IPC_PushNotification[T]['payload'],
+      ) => void,
+    ) => {
+      ipcRenderer.on(channel, func);
     },
-    once(channel: Channels, func: (...args: unknown[]) => void) {
-      ipcRenderer.once(channel, (_event, ...args) => func(...args));
+
+    off: <T extends keyof IPC_PushNotification>(
+      channel: T,
+      func: (
+        _event: IpcRendererEvent,
+        args: IPC_PushNotification[T]['payload'],
+      ) => void,
+    ) => {
+      ipcRenderer.off(channel, func);
+    },
+
+    removeAllListeners: <T extends keyof IPC_PushNotification>(channel: T) => {
+      ipcRenderer.removeAllListeners(channel);
+    },
+
+    listenerCount: <T extends keyof IPC_PushNotification>(
+      channel: T,
+    ): number => {
+      return ipcRenderer.listenerCount(channel);
+    },
+
+    once: <T extends keyof IPC_PushNotification>(
+      channel: T,
+      func: (
+        _event: IpcRendererEvent,
+        args: IPC_PushNotification[T]['payload'],
+      ) => void,
+    ) => {
+      ipcRenderer.once(channel, func);
+    },
+
+    invoke: async (channel, ...args) => {
+      return ipcRenderer.invoke(channel, args);
     },
   },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
-
-export type ElectronHandler = typeof electronHandler;

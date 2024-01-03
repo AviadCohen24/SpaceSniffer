@@ -15,6 +15,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { GetCurrentDirectoryMap, SniffDirectory } from './sniffingHandler';
+import setIpcRoutes from './startup/ipc.startup';
 
 class AppUpdater {
   constructor() {
@@ -25,17 +26,6 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-// TODO: Need to implement ipcMain.Ons.
-// Needed On events: GetCurrentTree, StartScanning
-ipcMain.on('StartSniffing', async (event, arg) => {
-  console.log(`Got request to start sniffing for directory ${arg[0]}`);
-  await SniffDirectory(arg);
-});
-
-ipcMain.on('CurrentDirectoryMap', (event) => {
-  event.reply('CurrentDirectoryMap', GetCurrentDirectoryMap());
-});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -100,6 +90,7 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
     }
+    setIpcRoutes(ipcMain, mainWindow);
   });
 
   mainWindow.on('closed', () => {
