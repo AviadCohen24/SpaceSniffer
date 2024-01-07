@@ -1,10 +1,20 @@
 /* eslint-disable prefer-template */
 import ReactEcharts from 'echarts-for-react';
 import * as echarts from 'echarts';
+import { NodeProps } from 'reactflow';
 
-export default function TreemapChart(diskData: any) {
+// interface ChartProps extends NodeProps {
+//   diskData?: string;
+// }
+
+export type ChartProps = {
+  diskData: string;
+};
+
+export default function TreemapChart(prop: NodeProps<ChartProps>) {
+  const diskData = prop?.data.diskData ?? null;
+
   const formatUtil = echarts.format;
-
   function getLevelOption() {
     return [
       {
@@ -28,6 +38,7 @@ export default function TreemapChart(diskData: any) {
     ];
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const option = {
     title: {
       text: 'Disk Usage',
@@ -71,5 +82,75 @@ export default function TreemapChart(diskData: any) {
     ],
   };
 
-  return <ReactEcharts option={option} />;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const option2 = {
+    xAxis: {
+      type: 'category',
+      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    },
+    yAxis: {
+      type: 'value',
+    },
+    series: [
+      {
+        data: [120, 200, 150, 80, 70, 110, 130],
+        type: 'bar',
+      },
+    ],
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const dataObject = `[{
+    "value": 43,
+    "name": ".tmpiEtJbP",
+    "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
+    "children": [
+        {
+            "value": 27,
+            "name": "subfolder1",
+            "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
+            "children": []
+        },
+        {
+            "value": 16,
+            "name": "subfolder2",
+            "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
+            "children": []
+        }
+    ]
+  }]`;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const dataObject2 = [
+    {
+      value: 43,
+      name: '.tmpiEtJbP',
+      path: 'C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP',
+      children: [
+        {
+          value: 27,
+          name: 'subfolder1',
+          path: 'C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP',
+          children: [],
+        },
+        {
+          value: 16,
+          name: 'subfolder2',
+          path: 'C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP',
+          children: [],
+        },
+      ],
+    },
+  ];
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const option3 = {
+    series: [
+      {
+        data: dataObject2,
+        type: 'treemap',
+      },
+    ],
+  };
+
+  return <ReactEcharts option={option3} />;
 }
