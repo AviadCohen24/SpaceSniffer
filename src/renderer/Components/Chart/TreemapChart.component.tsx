@@ -1,156 +1,110 @@
 /* eslint-disable prefer-template */
 import ReactEcharts from 'echarts-for-react';
 import * as echarts from 'echarts';
-import { NodeProps } from 'reactflow';
-
-// interface ChartProps extends NodeProps {
-//   diskData?: string;
-// }
+// import { NodeProps } from 'reactflow';
+import { FolderHierarchy } from '../../../shared/Scanner/FolderHierarchy';
 
 export type ChartProps = {
   diskData: string;
 };
 
-export default function TreemapChart(prop: NodeProps<ChartProps>) {
-  const diskData = prop?.data.diskData ?? null;
-
-  const formatUtil = echarts.format;
-  function getLevelOption() {
-    return [
-      {
-        itemStyle: {
-          borderWidth: 0,
-          gapWidth: 5,
-        },
-      },
-      {
-        itemStyle: {
-          gapWidth: 1,
-        },
-      },
-      {
-        colorSaturation: [0.35, 0.5],
-        itemStyle: {
-          gapWidth: 1,
-          borderColorSaturation: 0.6,
-        },
-      },
-    ];
+const parseDiskData = (data: string): FolderHierarchy | undefined => {
+  const parsedData = JSON.parse(data) as FolderHierarchy;
+  if (parsedData) {
+    return parsedData as FolderHierarchy;
   }
+  return undefined;
+};
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getLevelOption = () => {
+  return [
+    {
+      itemStyle: {
+        borderColor: '#777',
+        borderWidth: 0,
+        gapWidth: 1,
+      },
+      upperLabel: {
+        show: false,
+      },
+    },
+    {
+      itemStyle: {
+        borderColor: '#555',
+        borderWidth: 5,
+        gapWidth: 1,
+      },
+      emphasis: {
+        itemStyle: {
+          borderColor: '#ddd',
+        },
+      },
+    },
+    {
+      colorSaturation: [0.35, 0.5],
+      itemStyle: {
+        borderWidth: 5,
+        gapWidth: 1,
+        borderColorSaturation: 0.6,
+      },
+    },
+  ];
+};
+
+const getToolTipFormatter = () => {
+  return (info: any) => {
+    const { value, treePathInfo } = info;
+    const treePath = [];
+
+    for (let i = 1; i < treePathInfo.length; i += 1) {
+      treePath.push(treePathInfo[i].name);
+    }
+
+    return [
+      '<div class="tooltip-title">' +
+        echarts.format.encodeHTML(treePath.join('/')) +
+        '</div>',
+      'Disk Usage: ' + echarts.format.addCommas(value) + ' KB',
+    ].join('');
+  };
+};
+
+export default function TreemapChart(prop: ChartProps) {
+  // const diskData = prop?.data.diskData ?? null;
+  const { diskData } = prop;
+
   const option = {
     title: {
       text: 'Disk Usage',
       left: 'center',
     },
-
     tooltip: {
-      formatter(info: any) {
-        const { value, treePathInfo } = info;
-        const treePath = [];
-
-        // eslint-disable-next-line no-plusplus
-        for (let i = 1; i < treePathInfo.length; i++) {
-          treePath.push(treePathInfo[i].name);
-        }
-
-        return [
-          '<div class="tooltip-title">' +
-            formatUtil.encodeHTML(treePath.join('/')) +
-            '</div>',
-          'Disk Usage: ' + formatUtil.addCommas(value) + ' KB',
-        ].join('');
-      },
+      formatter: getToolTipFormatter(),
     },
-
     series: [
       {
         name: 'Disk Usage',
         type: 'treemap',
         visibleMin: 300,
+        leafDepth: 2,
         label: {
           show: true,
           formatter: '{b}',
+          fontSize: 25,
+        },
+        upperLabel: {
+          show: true,
+          height: 60,
+          fontSize: 30,
         },
         itemStyle: {
           borderColor: '#fff',
         },
         levels: getLevelOption(),
-        data: diskData,
+        data: [parseDiskData(diskData)],
       },
     ],
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const option2 = {
-    xAxis: {
-      type: 'category',
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    },
-    yAxis: {
-      type: 'value',
-    },
-    series: [
-      {
-        data: [120, 200, 150, 80, 70, 110, 130],
-        type: 'bar',
-      },
-    ],
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const dataObject = `[{
-    "value": 43,
-    "name": ".tmpiEtJbP",
-    "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
-    "children": [
-        {
-            "value": 27,
-            "name": "subfolder1",
-            "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
-            "children": []
-        },
-        {
-            "value": 16,
-            "name": "subfolder2",
-            "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
-            "children": []
-        }
-    ]
-  }]`;
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const dataObject2 = [
-    {
-      value: 43,
-      name: '.tmpiEtJbP',
-      path: 'C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP',
-      children: [
-        {
-          value: 27,
-          name: 'subfolder1',
-          path: 'C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP',
-          children: [],
-        },
-        {
-          value: 16,
-          name: 'subfolder2',
-          path: 'C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP',
-          children: [],
-        },
-      ],
-    },
-  ];
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const option3 = {
-    series: [
-      {
-        data: dataObject2,
-        type: 'treemap',
-      },
-    ],
-  };
-
-  return <ReactEcharts option={option3} />;
+  return <ReactEcharts option={option} />;
 }

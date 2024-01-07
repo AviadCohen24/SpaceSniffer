@@ -1,5 +1,5 @@
 export type FolderHierarchy = {
-  size: number;
+  value: number;
   name: string;
   path: string;
   children: FolderHierarchy[];

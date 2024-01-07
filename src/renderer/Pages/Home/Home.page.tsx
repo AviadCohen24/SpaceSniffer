@@ -18,39 +18,45 @@ export type HomeProps = {
 export const diskData: string = `{
   "value": 43,
   "name": ".tmpiEtJbP",
-  "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
+  "path": "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\.tmpiEtJbP",
   "children": [
       {
           "value": 27,
           "name": "subfolder1",
-          "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
-          "children": []
+          "path": "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\.tmpiEtJbP",
+          "children": [
+            {
+              "value": 13,
+              "name": "subsubfolder1",
+              "path": "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\.tmpiEtJbP\\\\subfolder1",
+              "children": []
+            },
+            {
+              "value": 4,
+              "name": "subsubfolder2",
+              "path": "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\.tmpiEtJbP\\\\subfolder1",
+              "children": []
+            },
+            {
+              "value": 10,
+              "name": "subsubfolder3",
+              "path": "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\.tmpiEtJbP\\\\subfolder1",
+              "children": []
+            }
+          ]
       },
       {
           "value": 16,
           "name": "subfolder2",
-          "path": "C:\\Users\\user\\AppData\\Local\\Temp\\.tmpiEtJbP",
+          "path": "C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\.tmpiEtJbP",
           "children": []
       }
   ]
 }`;
 
-export const nodes: Node[] = [
-  {
-    id: 'echarts-node',
-    type: 'treemapChart',
-    data: {
-      diskData, // TODO: change it to get directory map
-      width: 300,
-      height: 200,
-    },
-    position: { x: 250, y: 5 },
-  },
-];
+export const nodes: Node[] = [];
 
-export const nodeTypes = {
-  treemapChart: TreemapChart,
-};
+export const nodeTypes = {};
 
 export default function Home(props: HomeProps) {
   return (
@@ -58,13 +64,12 @@ export default function Home(props: HomeProps) {
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}
-        defaultViewport={{ x: 55, y: 20, zoom: 0.5 }}
-        connectionMode={ConnectionMode.Loose}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
         proOptions={{ hideAttribution: true }}
       >
-        {/* <TreemapChart diskData={diskData} /> */}
         <Background variant={BackgroundVariant.Dots} size={2} />
       </ReactFlow>
+      <TreemapChart diskData={diskData} />
     </ScannerContainer>
   );
 }
