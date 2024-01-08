@@ -1,14 +1,9 @@
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO: Delete this eslint-disables
-import ReactFlow, {
-  Background,
-  BackgroundVariant,
-  ConnectionMode,
-  Node,
-} from 'reactflow';
+import ReactFlow, { Background, BackgroundVariant, Node } from 'reactflow';
 import { UserActionHandlers } from '../../hooks/userActionHandlers.hook';
-import { ScannerContainer } from './Home.styles';
+import { ChartContainer, Reactflow, ScannerContainer } from './Home.styles';
 import TreemapChart from '../../Components/Chart/TreemapChart.component';
 
 export type HomeProps = {
@@ -54,21 +49,9 @@ export const diskData: string = `{
   ]
 }`;
 
-export const nodes: Node[] = [];
-
-export const nodeTypes = {};
-
 export default function Home(props: HomeProps) {
   return (
     <ScannerContainer>
-      <ReactFlow
-        nodes={nodes}
-        nodeTypes={nodeTypes}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
-        proOptions={{ hideAttribution: true }}
-      >
-        <Background variant={BackgroundVariant.Dots} size={2} />
-      </ReactFlow>
       <TreemapChart diskData={diskData} />
     </ScannerContainer>
   );

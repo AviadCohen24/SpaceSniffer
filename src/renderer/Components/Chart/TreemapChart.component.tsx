@@ -1,8 +1,7 @@
 /* eslint-disable prefer-template */
-import ReactEcharts from 'echarts-for-react';
 import * as echarts from 'echarts';
-// import { NodeProps } from 'reactflow';
 import { FolderHierarchy } from '../../../shared/Scanner/FolderHierarchy';
+import { Treemap } from './TreemapChart.styles';
 
 export type ChartProps = {
   diskData: string;
@@ -81,11 +80,14 @@ export default function TreemapChart(prop: ChartProps) {
     tooltip: {
       formatter: getToolTipFormatter(),
     },
+    dataZoom: {
+      start: 100,
+    },
     series: [
       {
         name: 'Disk Usage',
         type: 'treemap',
-        visibleMin: 300,
+        visibleMin: 100,
         leafDepth: 2,
         label: {
           show: true,
@@ -102,9 +104,11 @@ export default function TreemapChart(prop: ChartProps) {
         },
         levels: getLevelOption(),
         data: [parseDiskData(diskData)],
+        responsive: true,
+        maintainAspectRatio: false,
       },
     ],
   };
 
-  return <ReactEcharts option={option} />;
+  return <Treemap option={option} style={{ height: '100%' }} />;
 }

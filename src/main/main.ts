@@ -9,12 +9,11 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { GetCurrentDirectoryMap, SniffDirectory } from './sniffingHandler';
 import setIpcRoutes from './startup/ipc.startup';
 
 class AppUpdater {
@@ -67,8 +66,6 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       nodeIntegration: true,
@@ -77,11 +74,16 @@ const createWindow = async () => {
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
+    useContentSize: true,
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const screenDimention = primaryDisplay.workAreaSize;
+    mainWindow?.setSize(screenDimention.width - 50, screenDimention.height);
+
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
