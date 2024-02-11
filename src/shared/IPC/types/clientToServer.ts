@@ -1,11 +1,16 @@
 import { Drive } from '../../Scanner/Drives';
 import { FolderHierarchy } from '../../Scanner/FolderHierarchy';
 
+export type GetCurrentMapProps = {
+  depth: number;
+  path: string;
+};
+
 export interface IPCMethods {
   // eslint-disable-next-line prettier/prettier
   'get_available_drives': {
     request: null;
-    response: Drive[];
+    response: Drive[] | null;
   };
   // eslint-disable-next-line prettier/prettier
   'start_scanning': {
@@ -19,7 +24,7 @@ export interface IPCMethods {
   };
   // eslint-disable-next-line prettier/prettier
   'get_current_map': {
-    request: string;
+    request: GetCurrentMapProps;
     response: FolderHierarchy | null;
   };
 }

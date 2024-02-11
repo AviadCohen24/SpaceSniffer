@@ -3,35 +3,38 @@ import * as ClientEventHandlers from './clientEventHandlers';
 import registerEvent from '../IPC/RegisterEvent';
 import { ErrorMessage } from '../../shared/Scanner/ErrorMessage';
 import createStackTraceFromException from '../../shared/utils/StackTrace.utils';
-
-// Wrap each event handler in a try catch statement that automatically sends an ErrorMessage
-// event to the client upon error
-async function forwardErrorsToClient<T>(
-  action: () => Promise<T>,
-): Promise<T | null> {
-  try {
-    return action();
-  } catch (ex: any) {
-    // eslint-disable-next-line camelcase
-    const err_msg: ErrorMessage = {
-      stringMessage: `Error from server: ${createStackTraceFromException(ex)}`,
-    };
-    try {
-      ClientEventHandlers.handleErrorMessage(browserWindow, err_msg);
-    } catch (exc: any) {
-      console.log(
-        // eslint-disable-next-line prettier/prettier
-        `Exception while handling exception. ${createStackTraceFromException(exc)}`
-      );
-    }
-    return null;
-  }
-}
+import { GetCurrentMapProps } from '../../shared/IPC/types/clientToServer';
 
 export default function setIpcRoutes(
+  // eslint-disable-next-line no-undef
   ipcMain: Electron.IpcMain,
   browserWindow: BrowserWindow,
 ) {
+  // Wrap each event handler in a try catch statement that automatically sends an ErrorMessage
+  // event to the client upon error
+  async function forwardErrorsToClient<T>(
+    action: () => Promise<T>,
+  ): Promise<T | null> {
+    try {
+      return action();
+    } catch (ex: any) {
+      // eslint-disable-next-line camelcase
+      const err_msg: ErrorMessage = {
+        stringMessage: `Error from server: ${createStackTraceFromException(
+          ex,
+        )}`,
+      };
+      try {
+        ClientEventHandlers.handleErrorMessage(browserWindow, err_msg);
+      } catch (exc: any) {
+        console.log(
+          // eslint-disable-next-line prettier/prettier
+        `Exception while handling exception. ${createStackTraceFromException(exc)}`
+        );
+      }
+      return null;
+    }
+  }
   registerEvent('start_scanning', ipcMain, async (param) => {
     await forwardErrorsToClient(async () =>
       ClientEventHandlers.handleRequestScanning(param),
@@ -55,11 +58,15 @@ export default function setIpcRoutes(
   });
 
   // The exception below will disappear when the `handleRequestCurrentDirectoryMap` will be implemented
-  registerEvent('get_current_map', ipcMain, async (param) => {
-    return forwardErrorsToClient(async () =>
-      ClientEventHandlers.handleRequestCurrentDirectoryMap(param),
-    );
-  });
+  registerEvent(
+    'get_current_map',
+    ipcMain,
+    async (props: GetCurrentMapProps) => {
+      return forwardErrorsToClient(async () =>
+        ClientEventHandlers.handleRequestCurrentDirectoryMap(props),
+      );
+    },
+  );
 
   // The exception below will disappear when the `handleAvailableDrivesRequest` will be implemented
   registerEvent('get_available_drives', ipcMain, async () => {

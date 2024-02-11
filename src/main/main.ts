@@ -15,6 +15,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import setIpcRoutes from './startup/ipc.startup';
+import SnifferManager from './Sniffer/SnifferManager';
 
 class AppUpdater {
   constructor() {
@@ -96,6 +97,7 @@ const createWindow = async () => {
   });
 
   mainWindow.on('closed', () => {
+    SnifferManager.getInstance().destroy();
     mainWindow = null;
   });
 
