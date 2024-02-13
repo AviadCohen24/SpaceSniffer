@@ -1,6 +1,3 @@
-https://www.npmjs.com/package/create-react-electron-app</a></li>
-        <li><strong>RustDirectorySniffer DLL</strong>: A Rust-based dynamic link library that handles the intricate task of sniffing disk space usage. This DLL is critical for accurately analyzing and reporting space allocation on the hard disk. <a href="#">https://github.com/AviadCohen24/RustDirectorySniffer</a></li>
-    </ul>
 # SpaceSniffer: Discover Your Disk Space Allocation
 
 ## Introduction
