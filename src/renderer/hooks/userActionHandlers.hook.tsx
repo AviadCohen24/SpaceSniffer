@@ -1,10 +1,12 @@
+import { GetCurrentMapProps } from '../../shared/IPC/types/clientToServer';
+import { Drive } from '../../shared/Scanner/Drives';
 import invokeServer from '../IPC/InvokeServer';
 
 export type UserActionHandlers = {
   sendStartScanningRequest: (startPath: string) => Promise<void>;
   sendStopScanningRequest: () => Promise<void>;
-  getCurrentDirectoryMap: (basePath: string) => Promise<void>;
-  getAvailableDrives: () => Promise<void>;
+  getCurrentDirectoryMap: (props: GetCurrentMapProps) => Promise<void>;
+  getAvailableDrives: () => Promise<Drive[] | null>;
 };
 
 /**
@@ -19,13 +21,14 @@ export const useUserActionHandlers = (): UserActionHandlers => {
     invokeServer('stop_scanning', null);
   };
 
-  const getCurrentDirectoryMap = async (basePath: string) => {
-    invokeServer('get_current_map', basePath);
+  const getCurrentDirectoryMap = async ({
+    path,
+    depth,
+  }: GetCurrentMapProps) => {
+    invokeServer('get_current_map', { path, depth });
   };
 
-  const getAvailableDrives = async () => {
-    invokeServer('get_available_drives', null);
-  };
+  const getAvailableDrives = () => invokeServer('get_available_drives', null);
 
   return {
     sendStartScanningRequest,

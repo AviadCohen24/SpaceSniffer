@@ -1,46 +1,60 @@
 /* eslint-disable no-use-before-define */
-/* eslint-disable prettier/prettier */
-import { Library } from 'ffi-napi';
+import koffi from 'koffi';
 
-// eslint-disable-next-line import/prefer-default-export
-export const snifferDll = Library('path_to_your_dll', {
-  'create_directory_scanner': ['pointer', []],
-  'free_directory_scanner': ['void', ['pointer']],
-  'scan_directory_async': ['void', ['pointer', 'string']],
-  'get_directory_map': ['string', ['pointer', 'string', 'int']],
-  'stop_scanning': ['void', ['pointer']],
-});
+const dllPath = 'src\\shared\\Scanner\\directory_scanner.dll';
+
+const directoryScannerLib = koffi.load(dllPath);
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const DirectoryScanner = koffi.opaque('DirectoryScanner');
+
+// Declare the functions using C-like prototypes or classic syntax
+const createDirectoryScanner = directoryScannerLib.func(
+  'DirectoryScanner* create_directory_scanner(void)',
+);
+const freeDirectoryScanner = directoryScannerLib.func(
+  'void free_directory_scanner(DirectoryScanner*)',
+);
+const scanDirectoryAsync = directoryScannerLib.func(
+  'void scan_directory_async(const DirectoryScanner*, const char*)',
+);
+const getDirectoryMap = directoryScannerLib.func(
+  'char* get_directory_map(const DirectoryScanner*, const char*, int)',
+);
+const stopScanning = directoryScannerLib.func('stop_scanner', 'void', [
+  koffi.out(koffi.pointer(DirectoryScanner, 2)),
+]);
 
 export default class SnifferManager {
   private static instance: SnifferManager;
 
-  public scanner: any;
+  public scannerPtr;
 
   constructor() {
-    this.scanner = snifferDll.create_directory_scanner();
+    this.scannerPtr = createDirectoryScanner();
   }
 
   public static getInstance(): SnifferManager {
     if (!SnifferManager.instance) {
-      SnifferManager.instance = new SnifferManager();
+      this.instance = new SnifferManager();
     }
-    return SnifferManager.instance;
+    return this.instance;
   }
 
   public StartScanner(path: string) {
-    snifferDll.scan_directory_async(this.scanner, path)
+    scanDirectoryAsync(SnifferManager.getInstance().scannerPtr, path);
+    console.log('After invoke function');
   }
 
   public StopScanner() {
-    snifferDll.stop_scanning(this.scanner);
+    stopScanning(this.scannerPtr);
   }
 
-  public GetDirectoryMap(depth: number, path: string) {
-    return snifferDll.get_directory_map(this.scanner, path, depth);
+  public GetDirectoryMap(depth: number, path: string): string {
+    return getDirectoryMap(this.scannerPtr, path, depth);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   destroy() {
-    snifferDll.free_directory_scanner(this.scanner);
-}
+    freeDirectoryScanner(this.scannerPtr);
+  }
 }

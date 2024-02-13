@@ -1,10 +1,18 @@
+/* eslint-disable react/button-has-type */
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// TODO: Delete this eslint-disables
-import ReactFlow, { Background, BackgroundVariant, Node } from 'reactflow';
+import { useState } from 'react';
 import { UserActionHandlers } from '../../hooks/userActionHandlers.hook';
-import { ChartContainer, Reactflow, ScannerContainer } from './Home.styles';
+import {
+  UsageDisplayContainer,
+  ScanStateButton,
+  Container,
+  ScannerConfigContainer,
+  PathContainer,
+} from './Home.styles';
 import TreemapChart from '../../Components/Chart/TreemapChart.component';
+import DriveSelector from '../../Components/DriveSelector/DriveSelector.component';
+import { Drive } from '../../../shared/Scanner/Drives';
 
 export type HomeProps = {
   userActionHandlers: UserActionHandlers;
@@ -50,9 +58,58 @@ export const diskData: string = `{
 }`;
 
 export default function Home(props: HomeProps) {
+  const { userActionHandlers } = props;
+
+  const stopScanText = 'Stop scanner';
+  const startScanText = 'Start scanner';
+
+  const [buttonText, setButtonText] = useState(startScanText);
+  const [driveSelectorOpen, setDriveSelectorOpen] = useState(false);
+  const [drive, setDrive] = useState<Drive | null>(null);
+
+  const stopScannerHandler = () => {
+    setButtonText(startScanText);
+  };
+
+  const openDriveSelectorHnadler = () => {
+    setDrive(null);
+    setDriveSelectorOpen(true);
+  };
+
+  const startScannerHandler = () => {
+    if (!driveSelectorOpen && drive) {
+      setButtonText(stopScanText);
+      userActionHandlers.sendStartScanningRequest(drive.name);
+    }
+  };
+
+  const stateButtonClickHandler = () => {
+    if (buttonText === startScanText) startScannerHandler();
+    else stopScannerHandler();
+  };
+
   return (
-    <ScannerContainer>
-      <TreemapChart diskData={diskData} />
-    </ScannerContainer>
+    <Container>
+      <ScannerConfigContainer>
+        <ScanStateButton onClick={stateButtonClickHandler}>
+          {buttonText}
+        </ScanStateButton>
+        <button
+          onClick={openDriveSelectorHnadler}
+          style={{ background: 'transparent', padding: '0 5vw' }}
+        >
+          <PathContainer>{drive ? drive.name : 'Select path'}</PathContainer>
+        </button>
+      </ScannerConfigContainer>
+      <UsageDisplayContainer>
+        <TreemapChart diskData={diskData} />
+      </UsageDisplayContainer>
+      <DriveSelector
+        isOpen={driveSelectorOpen}
+        toggleModal={setDriveSelectorOpen}
+        getAvailableDrives={userActionHandlers.getAvailableDrives}
+        setSelectedDrive={setDrive}
+      />
+    </Container>
   );
 }

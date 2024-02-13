@@ -22,11 +22,11 @@ export function handleProgressRequest(
 }
 
 export async function handleRequestScanning(startPath: string) {
-  SnifferManager.getInstance().StartScanner(startPath);
   // TODO: Remove this console
   console.log(
-    `Start scanning request arrived successfully with the path: ${startPath}`,
+    `Start scanning request arrived successfully with the path: ${startPath.toString()}`,
   );
+  SnifferManager.getInstance().StartScanner(startPath.toString());
 }
 
 export async function handleRequestStopScanning() {
